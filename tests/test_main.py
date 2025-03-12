@@ -1,10 +1,8 @@
-import unittest
+import pytest
 from src.main import main
 
-class TestMain(unittest.TestCase):
-    def test_main(self):
-        # Basic test for main function
-        self.assertIsNone(main())
-
-if __name__ == "__main__":
-    unittest.main()
+def test_main(capsys):
+    """Test the main function output"""
+    main()
+    captured = capsys.readouterr()
+    assert captured.out == "Hello, World!\n"

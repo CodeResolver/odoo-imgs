@@ -1,7 +1,14 @@
-# Project Name
+# Python Project Template
 
 ## Description
-A brief description of your project.
+A well-structured Python project template with testing and development tools.
+
+## Features
+- Clean project structure
+- Unit testing setup
+- Code formatting with Black
+- Linting with Flake8
+- Import sorting with isort
 
 ## Installation
 ```bash
