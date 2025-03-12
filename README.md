@@ -10,7 +10,42 @@ This module extends Odoo's product export functionality to include image URLs wh
 
 ## Installation
 
-### Development Environment Setup
+### Option 1: Using Docker (Recommended)
+
+This repository includes Docker configuration for easy development and testing:
+
+1. Make sure [Docker](https://www.docker.com/get-started) and [Docker Compose](https://docs.docker.com/compose/install/) are installed.
+
+2. Clone the repository:
+
+   ```bash
+   git clone https://github.com/your-username/product_image_export.git
+   cd product_image_export
+   ```
+
+3. Make the development script executable:
+
+   ```bash
+   chmod +x scripts/docker_dev.sh
+   ```
+
+4. Start the development environment:
+
+   ```bash
+   ./odoo-tools start
+   ```
+
+5. Access Odoo at http://localhost:8069
+
+   - Create a new database
+   - Install the "Product Image Export" module from the Apps menu
+
+6. For development:
+   - View logs: `./docker_dev.sh logs`
+   - Restart services: `./docker_dev.sh restart`
+   - Access container shell: `./docker_dev.sh shell`
+
+### Option 2: Development Environment Setup with Poetry
 
 1. Install Poetry:
 
@@ -76,8 +111,19 @@ The exported file will now include a column with the public URL for each product
 ## Technical Notes
 
 - The module computes image URLs based on the Odoo attachment system
-- URLs are based on the `web.base.url` system parameter
-- The URLs are publicly accessible without authentication
+- By default, the URLs require Odoo authentication to access
+- You can make individual product image URLs publicly accessible by:
+  1. Editing the product
+  2. Checking the "Public Image URL" option
+  3. Saving the product
+
+### Security Considerations
+
+When making product image URLs public:
+
+- Anyone with the URL can access the image, even without logging into Odoo
+- This is useful for embedding in external systems or sharing with partners
+- Consider the sensitivity of your product images before making them public
 
 ## Compatibility
 

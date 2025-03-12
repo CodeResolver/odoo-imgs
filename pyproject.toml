@@ -1,15 +1,19 @@
 [tool.poetry]
-name = "odoo-imgs"
+name = "product_image_export"  # Changed from odoo-imgs
 version = "0.1.0"
 description = "Odoo module for product image export"
 authors = ["Your Name <your.email@example.com>"]
 license = "LGPL-3"
 readme = "README.md"
+# Disable package mode since this is an Odoo module, not a standard Python package
+package-mode = false
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.10"  # Updated from ^3.8 to ^3.9 for Pillow compatibility
 # Odoo is not properly published on PyPI, so we don't include it as a direct dependency
 # Instead, we'll set up a development environment that points to an existing Odoo installation
+pillow = "^11.1.0"  # Make sure Pillow is available in main dependencies
+requests = "^2.32.3"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.0"
@@ -19,8 +23,6 @@ isort = "^5.10"
 pylint = "^2.16"
 mypy = "^0.910"
 pytest-mock = "^3.10.0"
-# Use odoo-stubs instead of pytest-odoo for type hints
-odoo-stubs = "^1.0.0"
 
 [build-system]
 requires = ["poetry-core"]

@@ -1,0 +1,23 @@
+FROM odoo:16.0
+
+USER root
+
+# Install additional system dependencies if needed
+RUN apt-get update && apt-get install -y \
+    python3-dev \
+    build-essential \
+    wget \
+    git \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Install additional Python packages if needed
+RUN pip3 install --no-cache-dir pytest pytest-odoo
+
+# Set up module directory with the correct name
+RUN mkdir -p /mnt/extra-addons/product_image_export
+
+# Set permissions for odoo user
+RUN chown -R odoo:odoo /mnt/extra-addons
+
+# Switch back to odoo user
+USER odoo

@@ -1,0 +1,127 @@
+#!/bin/bash
+
+# Main utility script to run tools from the scripts directory
+# Colors for terminal output
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+RED='\033[0;31m'
+NC='\033[0m' # No Color
+
+SCRIPTS_DIR="scripts"
+VERSION="1.0.0"
+MODULE_NAME="product_image_export"  # Updated module name
+
+# Create scripts directory if it doesn't exist
+mkdir -p "$SCRIPTS_DIR"
+
+function show_help {
+    echo -e "${BLUE}Product Image Export Module Utilities${NC} v${VERSION}"
+    echo -e "Usage: $0 [command] [options]"
+    echo ""
+    echo -e "${GREEN}Available commands:${NC}"
+    
+    # Find scripts in the scripts directory and list them as commands
+    echo -e "${YELLOW}Development Commands:${NC}"
+    echo -e "  dev         - Start Odoo development environment"
+    echo -e "  start       - Start Odoo in background mode"
+    echo -e "  stop        - Stop the Odoo container"
+    echo -e "  restart     - Restart the Odoo container"
+    echo -e "  logs        - Show Odoo logs"
+    echo -e "  shell       - Open a shell in the Odoo container"
+    echo -e "  rebuild     - Rebuild Docker images"
+    echo -e "  update      - Update a specific module (e.g. $0 update $MODULE_NAME)"
+    
+    echo -e "\n${YELLOW}Module Tools:${NC}"
+    echo -e "  debug       - Run module diagnostic checks"
+    echo -e "  fix-icons   - Fix module icon issues"
+    echo -e "  check-imgs  - Check module images status"
+    echo -e "  resize      - Resize module images"
+    echo -e "  check-name  - Find name inconsistencies"
+    
+    echo -e "\n${YELLOW}Utility Commands:${NC}"
+    echo -e "  make-exe    - Make all scripts executable"
+    echo -e "  version     - Show version information"
+    echo -e "  help        - Show this help message"
+    echo ""
+    echo -e "${BLUE}Examples:${NC}"
+    echo -e "  $0 dev          - Start Odoo in development mode"
+    echo -e "  $0 fix-icons    - Fix module icon issues"
+    echo -e "  $0 update product_image_export - Update the module"
+    echo ""
+    echo -e "For more information, see the README.md file."
+}
+
+# Function to check if a specific script exists
+function check_script {
+    local script="$SCRIPTS_DIR/$1"
+    if [[ ! -f "$script" ]]; then
+        echo -e "${RED}Error: Script $1 not found in $SCRIPTS_DIR directory.${NC}"
+        return 1
+    fi
+    
+    # Make sure the script is executable
+    chmod +x "$script"
+    return 0
+}
+
+# Main command router
+case "$1" in
+    dev)
+        check_script "docker_dev.sh" && "$SCRIPTS_DIR/docker_dev.sh" dev "${@:2}"
+        ;;
+    start)
+        check_script "docker_dev.sh" && "$SCRIPTS_DIR/docker_dev.sh" start "${@:2}"
+        ;;
+    stop)
+        check_script "docker_dev.sh" && "$SCRIPTS_DIR/docker_dev.sh" stop "${@:2}"
+        ;;
+    restart)
+        check_script "docker_dev.sh" && "$SCRIPTS_DIR/docker_dev.sh" restart "${@:2}"
+        ;;
+    logs)
+        check_script "docker_dev.sh" && "$SCRIPTS_DIR/docker_dev.sh" logs "${@:2}"
+        ;;
+    shell)
+        check_script "docker_dev.sh" && "$SCRIPTS_DIR/docker_dev.sh" shell "${@:2}"
+        ;;
+    rebuild)
+        check_script "docker_dev.sh" && "$SCRIPTS_DIR/docker_dev.sh" rebuild "${@:2}"
+        ;;
+    update)
+        check_script "docker_dev.sh" && "$SCRIPTS_DIR/docker_dev.sh" update "${@:2}"
+        ;;
+    debug)
+        check_script "debug_module.sh" && "$SCRIPTS_DIR/debug_module.sh" "${@:2}"
+        ;;
+    fix-icons)
+        check_script "fix_icon_paths.sh" && "$SCRIPTS_DIR/fix_icon_paths.sh" "${@:2}"
+        ;;
+    check-imgs)
+        check_script "check_module_images.sh" && "$SCRIPTS_DIR/check_module_images.sh" "${@:2}"
+        ;;
+    resize)
+        check_script "resize.sh" && "$SCRIPTS_DIR/resize.sh" "${@:2}"
+        ;;
+    check-name)
+        check_script "find_name_inconsistencies.sh" && "$SCRIPTS_DIR/find_name_inconsistencies.sh" "${@:2}"
+        ;;
+    make-exe)
+        check_script "make_executable.sh" && "$SCRIPTS_DIR/make_executable.sh" "${@:2}"
+        ;;
+    setup)
+        check_script "setup_dev.sh" && "$SCRIPTS_DIR/setup_dev.sh" "${@:2}"
+        ;;
+    version)
+        echo -e "${BLUE}Odoo Tools${NC} v${VERSION}"
+        echo -e "Product Image Export module development utilities"
+        ;;
+    help|--help|-h|"")
+        show_help
+        ;;
+    *)
+        echo -e "${RED}Unknown command: $1${NC}"
+        show_help
+        exit 1
+        ;;
+esac

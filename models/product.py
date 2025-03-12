@@ -5,11 +5,24 @@ import base64
 class ProductTemplate(models.Model):
     _inherit = 'product.template'
     
-    image_url = fields.Char(string='Image URL', compute='_compute_image_url', store=False)
+    # Add an option to make the URL public
+    image_url_public = fields.Boolean(
+        string="Public Image URL", 
+        default=False,
+        help="If checked, the image URL will be publicly accessible without login"
+    )
     
-    @api.depends('image_1920')
+    image_url = fields.Char(
+        string='Image URL', 
+        compute='_compute_image_url', 
+        store=True,
+        help="URL to access the product image - may require authentication if not set to public",
+        exportable=True
+    )  
+    
+    @api.depends('image_1920', 'image_url_public')
     def _compute_image_url(self):
-        """Compute the public URL for the product image"""
+        """Compute the URL for the product image"""
         base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
         
         for product in self:
@@ -22,8 +35,16 @@ class ProductTemplate(models.Model):
                 ], limit=1)
                 
                 if attachment:
-                    # Create a public URL for the attachment
-                    image_url = urljoin(base_url, f'/web/image/{attachment.id}')
+                    if product.image_url_public:
+                        # Make the attachment public and generate a public URL
+                        attachment.sudo().write({'public': True})
+                        # Use the share URL format with access_token for public access
+                        access_token = attachment.sudo()._generate_access_token() if hasattr(attachment, '_generate_access_token') else ''
+                        image_url = urljoin(base_url, f'/web/image/{attachment.id}?access_token={access_token}')
+                    else:
+                        # Standard URL that requires authentication
+                        image_url = urljoin(base_url, f'/web/image/{attachment.id}')
+                        
                     product.image_url = image_url
                 else:
                     product.image_url = False
@@ -34,11 +55,24 @@ class ProductTemplate(models.Model):
 class ProductProduct(models.Model):
     _inherit = 'product.product'
     
-    image_url = fields.Char(string='Image URL', compute='_compute_image_url', store=False)
+    # Add an option to make the URL public
+    image_url_public = fields.Boolean(
+        string="Public Image URL", 
+        default=False,
+        help="If checked, the image URL will be publicly accessible without login"
+    )
     
-    @api.depends('image_1920')
+    image_url = fields.Char(
+        string='Image URL', 
+        compute='_compute_image_url', 
+        store=True,
+        help="URL to access the product variant image - may require authentication if not set to public",
+        exportable=True
+    )
+    
+    @api.depends('image_1920', 'image_url_public')
     def _compute_image_url(self):
-        """Compute the public URL for the product image"""
+        """Compute the URL for the product image"""
         base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
         
         for product in self:
@@ -51,8 +85,16 @@ class ProductProduct(models.Model):
                 ], limit=1)
                 
                 if attachment:
-                    # Create a public URL for the attachment
-                    image_url = urljoin(base_url, f'/web/image/{attachment.id}')
+                    if product.image_url_public:
+                        # Make the attachment public and generate a public URL
+                        attachment.sudo().write({'public': True})
+                        # Use the share URL format with access_token for public access
+                        access_token = attachment.sudo()._generate_access_token() if hasattr(attachment, '_generate_access_token') else ''
+                        image_url = urljoin(base_url, f'/web/image/{attachment.id}?access_token={access_token}')
+                    else:
+                        # Standard URL that requires authentication
+                        image_url = urljoin(base_url, f'/web/image/{attachment.id}')
+                        
                     product.image_url = image_url
                 else:
                     product.image_url = False
