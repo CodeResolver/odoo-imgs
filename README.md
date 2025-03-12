@@ -10,10 +10,10 @@ pip install -r requirements.txt
 
 ## Usage
 ```bash
-python -m src.main
+python3 -m src.main
 ```
 
 ## Testing
 ```bash
-python -m unittest discover tests
+python3 -m unittest discover tests
 ```
