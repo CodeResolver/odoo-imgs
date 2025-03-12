@@ -17,8 +17,17 @@ services:
       - USER=odoo
       - PASSWORD=odoo
       - PYTHONUNBUFFERED=1 # Output Python logs immediately
+      # Make sure the addon is included in the addons path
+      - ADDONS_PATH=/mnt/extra-addons,/usr/lib/python3/dist-packages/odoo/addons
     restart: always
     command: -- --dev=all
+    # Add healthcheck alignment with the Dockerfile
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8069/web/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
 
   db:
     image: postgres:13
@@ -29,6 +38,12 @@ services:
     volumes:
       - odoo-db-data:/var/lib/postgresql/data
     restart: always
+    # Add healthcheck for Postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U odoo"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
   odoo-web-data:
