@@ -1,0 +1,27 @@
+[tool.poetry]
+name = "odoo-imgs"
+version = "0.1.0"
+description = "Odoo module for product image export"
+authors = ["Your Name <your.email@example.com>"]
+license = "LGPL-3"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+# Odoo is not properly published on PyPI, so we don't include it as a direct dependency
+# Instead, we'll set up a development environment that points to an existing Odoo installation
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.0"
+black = "^23.3"
+flake8 = "^5.0"
+isort = "^5.10"
+pylint = "^2.16"
+mypy = "^0.910"
+pytest-mock = "^3.10.0"
+# Use odoo-stubs instead of pytest-odoo for type hints
+odoo-stubs = "^1.0.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
