@@ -39,6 +39,10 @@ function show_help {
     echo -e "  resize      - Resize module images"
     echo -e "  check-name  - Find name inconsistencies"
     
+    echo -e "\n${YELLOW}Deployment Commands:${NC}"
+    echo -e "  deploy      - Deploy module to remote server"
+    echo -e "  deploy-dry  - Perform a dry run deployment (verification only)"
+    
     echo -e "\n${YELLOW}Utility Commands:${NC}"
     echo -e "  make-exe    - Make all scripts executable"
     echo -e "  version     - Show version information"
@@ -47,7 +51,7 @@ function show_help {
     echo -e "${BLUE}Examples:${NC}"
     echo -e "  $0 dev          - Start Odoo in development mode"
     echo -e "  $0 fix-icons    - Fix module icon issues"
-    echo -e "  $0 update product_image_export - Update the module"
+    echo -e "  $0 deploy       - Deploy module to remote server"
     echo ""
     echo -e "For more information, see the README.md file."
 }
@@ -111,6 +115,12 @@ case "$1" in
         ;;
     setup)
         check_script "setup_dev.sh" && "$SCRIPTS_DIR/setup_dev.sh" "${@:2}"
+        ;;
+    deploy)
+        check_script "deploy.sh" && "$SCRIPTS_DIR/deploy.sh" "${@:2}"
+        ;;
+    deploy-dry)
+        check_script "deploy.sh" && "$SCRIPTS_DIR/deploy.sh" --dry-run "${@:2}"
         ;;
     version)
         echo -e "${BLUE}Odoo Tools${NC} v${VERSION}"

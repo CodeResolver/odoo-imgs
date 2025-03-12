@@ -1,0 +1,49 @@
+# Dokploy configuration for Product Image Export module
+
+app: product-image-export
+version: 1.0.0
+
+# Remote server configuration
+remote:
+  host: ${DEPLOY_HOST}
+  user: ${DEPLOY_USER}
+  port: ${DEPLOY_PORT:-22}
+  key_path: ${SSH_KEY_PATH:-~/.ssh/id_rsa}
+
+# Application directories
+paths:
+  remote_dir: /opt/odoo/custom/addons/product_image_export
+  backup_dir: /opt/odoo/backups/modules
+
+# Deployment settings
+deploy:
+  strategy: rsync
+  exclude:
+    - ".git"
+    - ".github"
+    - "__pycache__"
+    - "*.pyc"
+    - ".env"
+    - ".aider*"
+    - "venv"
+    - ".venv"
+    - ".pytest_cache"
+    - "tests"
+    - "*.log"
+
+# Post-deployment commands
+commands:
+  pre_deploy:
+    - echo "Starting deployment of Product Image Export module..."
+
+  post_deploy:
+    - ssh ${DEPLOY_USER}@${DEPLOY_HOST} -p ${DEPLOY_PORT:-22} "chown -R odoo:odoo /opt/odoo/custom/addons/product_image_export"
+    - ssh ${DEPLOY_USER}@${DEPLOY_HOST} -p ${DEPLOY_PORT:-22} "docker exec odoo odoo -u product_image_export --stop-after-init || echo 'Module update failed'"
+    - echo "Deployment complete!"
+
+# Notifications
+notifications:
+  slack:
+    enabled: false
+    webhook: ${SLACK_WEBHOOK_URL:-}
+    channel: deployments
