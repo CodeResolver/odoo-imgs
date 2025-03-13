@@ -46,5 +46,33 @@ class DataExport(models.TransientModel):
             if 'fields_list' in res and isinstance(res['fields_list'], list):
                 if 'image_url' not in [f[0] if isinstance(f, (list, tuple)) else f for f in res['fields_list']]:
                     res['fields_list'].append('image_url')
+                    
+            # Enable auto-public URLs for export if configured
+            auto_public = self.env['ir.config_parameter'].sudo().get_param('product_image_export.auto_public_urls', 'False').lower() == 'true'
+            export_auto_public = self.env['ir.config_parameter'].sudo().get_param('product_image_export.export_auto_public', 'True').lower() == 'true'
+            
+            # If exporting, temporarily enable auto-public if configured
+            if export_auto_public and not auto_public:
+                self.env['ir.config_parameter'].sudo().set_param('product_image_export.auto_public_urls', 'True')
+                # Schedule recomputation of image_url field
+                self.env['product.template'].sudo().search([]).write({'image_url_public': False})
+                self.env['product.product'].sudo().search([]).write({'image_url_public': False})
         
         return res
+
+# Add a new settings model
+class ProductImageExportSettings(models.TransientModel):
+    _inherit = 'res.config.settings'
+    
+    product_image_auto_public = fields.Boolean(
+        string='Public Image URLs by Default',
+        help='If enabled, all product images will have public URLs by default',
+        config_parameter='product_image_export.auto_public_urls'
+    )
+    
+    product_image_export_auto_public = fields.Boolean(
+        string='Make Images Public on Export',
+        help='If enabled, all product images will be made public when exported',
+        default=True,
+        config_parameter='product_image_export.export_auto_public'
+    )

@@ -7,6 +7,7 @@ This module extends Odoo's product export functionality to include image URLs wh
 - Adds an `image_url` field to products
 - Automatically computes public URLs for product images
 - Includes image URLs in Excel and CSV exports
+- Automatically makes image URLs public during export (configurable)
 
 ## Installation
 
@@ -108,14 +109,22 @@ For this module to work, you need to have Odoo 16.0 installed. You can:
 
 The exported file will now include a column with the public URL for each product's image.
 
+### Configuration Options
+
+You can configure the behavior of image URLs in Settings > General Settings > Product Image Export:
+
+- **Public Image URLs by Default**: Make all product images have public URLs automatically
+- **Make Images Public on Export**: Automatically make images public when they are exported (enabled by default)
+
 ## Technical Notes
 
 - The module computes image URLs based on the Odoo attachment system
-- By default, the URLs require Odoo authentication to access
+- By default, the URLs require Odoo authentication to access unless public options are enabled
 - You can make individual product image URLs publicly accessible by:
   1. Editing the product
   2. Checking the "Public Image URL" option
   3. Saving the product
+- During export, images are automatically made public (this can be disabled in settings)
 
 ### Security Considerations
 
@@ -124,6 +133,7 @@ When making product image URLs public:
 - Anyone with the URL can access the image, even without logging into Odoo
 - This is useful for embedding in external systems or sharing with partners
 - Consider the sensitivity of your product images before making them public
+- You can control this behavior in the settings
 
 ## Compatibility
 

@@ -1,4 +1,27 @@
 services:
+  traefik:
+    image: traefik:v2.10
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik:/etc/traefik
+      - traefik-certificates:/letsencrypt
+    command:
+      - "--api.dashboard=true"
+      - "--api.insecure=false"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
+      - "--certificatesresolvers.myresolver.acme.email=${ACME_EMAIL:-admin@example.com}"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+    networks:
+      - odoo_network
+
   odoo:
     build:
       context: .
@@ -19,6 +42,8 @@ services:
       - PYTHONUNBUFFERED=1 # Output Python logs immediately
       # Make sure the addon is included in the addons path
       - ADDONS_PATH=/mnt/extra-addons,/usr/lib/python3/dist-packages/odoo/addons
+      - DOMAIN=${DOMAIN:-odoo.example.com}
+      - VIRTUAL_HOST=${DOMAIN:-odoo.example.com}
     restart: always
     command: -- --dev=all
     # Add healthcheck alignment with the Dockerfile
@@ -28,6 +53,19 @@ services:
       timeout: 10s
       retries: 3
       start_period: 60s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.odoo.rule=Host(`${DOMAIN:-odoo.example.com}`)"
+      - "traefik.http.routers.odoo.entrypoints=websecure"
+      - "traefik.http.routers.odoo.tls.certresolver=myresolver"
+      - "traefik.http.services.odoo.loadbalancer.server.port=8069"
+      # HTTP to HTTPS redirect
+      - "traefik.http.routers.odoo-http.rule=Host(`${DOMAIN:-odoo.example.com}`)"
+      - "traefik.http.routers.odoo-http.entrypoints=web"
+      - "traefik.http.routers.odoo-http.middlewares=redirect-to-https"
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+    networks:
+      - odoo_network
 
   db:
     image: postgres:13
@@ -44,7 +82,14 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - odoo_network
+
+networks:
+  odoo_network:
+    driver: bridge
 
 volumes:
   odoo-web-data:
   odoo-db-data:
+  traefik-certificates:

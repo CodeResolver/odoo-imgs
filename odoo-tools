@@ -38,6 +38,7 @@ function show_help {
     echo -e "  check-imgs  - Check module images status"
     echo -e "  resize      - Resize module images"
     echo -e "  check-name  - Find name inconsistencies"
+    echo -e "  test-urls   - Test public image URL accessibility"
     
     echo -e "\n${YELLOW}Deployment Commands:${NC}"
     echo -e "  deploy      - Deploy module to remote server"
@@ -47,6 +48,11 @@ function show_help {
     echo -e "  make-exe    - Make all scripts executable"
     echo -e "  version     - Show version information"
     echo -e "  help        - Show this help message"
+    
+    echo -e "\n${YELLOW}SSL and Domain Commands:${NC}"
+    echo -e "  setup-ssl   - Set up directories and files for SSL configuration"
+    echo -e "  domain      - Set or update the domain name"
+
     echo ""
     echo -e "${BLUE}Examples:${NC}"
     echo -e "  $0 dev          - Start Odoo in development mode"
@@ -110,6 +116,9 @@ case "$1" in
     check-name)
         check_script "find_name_inconsistencies.sh" && "$SCRIPTS_DIR/find_name_inconsistencies.sh" "${@:2}"
         ;;
+    test-urls)
+        check_script "test_public_images.sh" && "$SCRIPTS_DIR/test_public_images.sh" "${@:2}"
+        ;;
     make-exe)
         check_script "make_executable.sh" && "$SCRIPTS_DIR/make_executable.sh" "${@:2}"
         ;;
@@ -121,6 +130,28 @@ case "$1" in
         ;;
     deploy-dry)
         check_script "deploy.sh" && "$SCRIPTS_DIR/deploy.sh" --dry-run "${@:2}"
+        ;;
+    setup-ssl)
+        check_script "setup_ssl.sh" && "$SCRIPTS_DIR/setup_ssl.sh" "${@:2}"
+        ;;
+    domain)
+        if [ -n "$2" ]; then
+            # Update the domain in the .env file
+            if [ -f ".env" ]; then
+                if grep -q "DOMAIN=" .env; then
+                    sed -i '' "s/DOMAIN=.*/DOMAIN=$2/" .env
+                else
+                    echo "DOMAIN=$2" >> .env
+                fi
+                echo -e "${GREEN}Domain set to $2${NC}"
+                echo -e "Restart containers with: $0 restart"
+            else
+                echo -e "${RED}No .env file found. Run $0 setup-ssl first.${NC}"
+            fi
+        else
+            echo -e "${RED}Please specify a domain name.${NC}"
+            echo -e "Usage: $0 domain example.com"
+        fi
         ;;
     version)
         echo -e "${BLUE}Odoo Tools${NC} v${VERSION}"

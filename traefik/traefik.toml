@@ -1,0 +1,19 @@
+[api]
+  dashboard = true
+
+[entryPoints]
+  [entryPoints.web]
+    address = ":80"
+    
+  [entryPoints.websecure]
+    address = ":443"
+    
+[providers]
+  [providers.docker]
+    exposedByDefault = false
+    network = "odoo_network"
+
+[certificatesResolvers.myresolver.acme]
+  email = "admin@example.com"
+  storage = "/letsencrypt/acme.json"
+  [certificatesResolvers.myresolver.acme.tlsChallenge]

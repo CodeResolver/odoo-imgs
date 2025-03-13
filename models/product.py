@@ -24,6 +24,8 @@ class ProductTemplate(models.Model):
     def _compute_image_url(self):
         """Compute the URL for the product image"""
         base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
+        # Check if automatic public URLs are enabled
+        auto_public = self.env['ir.config_parameter'].sudo().get_param('product_image_export.auto_public_urls', 'False').lower() == 'true'
         
         for product in self:
             if product.image_1920:
@@ -35,7 +37,8 @@ class ProductTemplate(models.Model):
                 ], limit=1)
                 
                 if attachment:
-                    if product.image_url_public:
+                    # Make public if configured or if the product setting is enabled
+                    if product.image_url_public or auto_public:
                         # Make the attachment public and generate a public URL
                         attachment.sudo().write({'public': True})
                         # Use the share URL format with access_token for public access
@@ -74,6 +77,8 @@ class ProductProduct(models.Model):
     def _compute_image_url(self):
         """Compute the URL for the product image"""
         base_url = self.env['ir.config_parameter'].sudo().get_param('web.base.url')
+        # Check if automatic public URLs are enabled
+        auto_public = self.env['ir.config_parameter'].sudo().get_param('product_image_export.auto_public_urls', 'False').lower() == 'true'
         
         for product in self:
             if product.image_1920:
@@ -85,7 +90,8 @@ class ProductProduct(models.Model):
                 ], limit=1)
                 
                 if attachment:
-                    if product.image_url_public:
+                    # Make public if configured or if the product setting is enabled
+                    if product.image_url_public or auto_public:
                         # Make the attachment public and generate a public URL
                         attachment.sudo().write({'public': True})
                         # Use the share URL format with access_token for public access
